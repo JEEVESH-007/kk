@@ -1,43 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exoplanet Simulation Engine</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 Stellar Horizon: Simulation Engine</h1>
-        <p class="subtitle">Real NASA Exoplanet Metrics & Stochastic Hazards</p>
-        
-        <div class="controls">
-            <button onclick="runSimulation('proxima')">Simulate Proxima Centauri b</button>
-            <button onclick="runSimulation('trappist')">Simulate TRAPPIST-1 e</button>
-        </div>
+const dataset = {
+    proxima: { name: "Proxima Centauri b", dist: 1.30, mass: 1.07, radius: 1.03, period: 11.18, lambda: 0.08 },
+    trappist: { name: "TRAPPIST-1 e", dist: 12.10, mass: 0.69, radius: 0.92, period: 6.10, lambda: 0.02 }
+};
 
-        <div id="telemetry" class="telemetry-card" style="display: none;">
-            <h2 id="planet-name">Planet</h2>
-            
-            <h3>Planetary Specs</h3>
-            <div class="grid">
-                <div class="metric"><strong>Distance (sy_dist):</strong> <span id="m-dist"></span> pc</div>
-                <div class="metric"><strong>Calculated Gravity:</strong> <span id="m-grav"></span> g</div>
-                <div class="metric"><strong>Orbit Period (pl_orbper):</strong> <span id="m-period"></span> days</div>
-                <div class="metric"><strong>Planet Temp (pl_eqt):</strong> <span id="m-temp"></span> K</div>
-            </div>
+function runSimulation(key) {
+    const p = dataset[key];
+    
+    // Core Physics: Gravity = Mass / (Radius squared)
+    const gravity = (p.mass / Math.pow(p.radius, 2)).toFixed(2);
+    
+    // Stochastic Risk Math: P_survival = e^(-lambda * 10 days)
+    const survivalChance = Math.exp(-p.lambda * 10);
+    const survivalPercentage = Math.round(survivalChance * 100);
 
-            <h3>Host Star Specs</h3>
-            <div class="grid">
-                <div class="metric"><strong>Star Temp (st_teff):</strong> <span id="m-steff"></span> K</div>
-                <div class="metric"><strong>Luminosity (st_lum):</strong> <span id="m-slum"></span> log(L☉)</div>
-            </div>
-            
-            <h3>⚡ 10-Day Stochastic Survival Chance</h3>
-            <div class="progress-bar"><div id="survival-bar"></div></div>
-            <p id="survival-text"></p>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+    // Update visual dashboard displays
+    document.getElementById("planet-name").innerText = p.name;
+    document.getElementById("m-dist").innerText = p.dist;
+    document.getElementById("m-grav").innerText = gravity;
+    document.getElementById("m-period").innerText = p.period;
+    
+    const bar = document.getElementById("survival-bar");
+    bar.style.width = survivalPercentage + "%";
+    bar.style.backgroundColor = survivalPercentage > 60 ? "#22c55e" : "#ef4444";
+    
+    document.getElementById("survival-text").innerText = `Vessel has a ${survivalPercentage}% chance of surviving localized stellar flares over a standard 10-day operational orbit.`;
+    document.getElementById("telemetry").style.display = "block";
+}
